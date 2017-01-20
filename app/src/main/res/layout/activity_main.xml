@@ -10,8 +10,27 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.pyakuren_chienhua.todo.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="false"
+        android:layout_alignParentStart="false"
+        android:alwaysDrawnWithCache="false"
+        android:id="@+id/toDoAdapter" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true">
+
+        <Button
+            android:text="Create"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/newToDo"
+            android:layout_weight="1" />
+    </LinearLayout>
+
 </RelativeLayout>
