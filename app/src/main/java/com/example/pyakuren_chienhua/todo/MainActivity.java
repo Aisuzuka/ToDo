@@ -1,5 +1,8 @@
 package com.example.pyakuren_chienhua.todo;
 
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -7,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -20,7 +24,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
-        loadToDo();
         initAdapter();
         initOnClickListener();
     }
@@ -29,7 +32,9 @@ public class MainActivity extends AppCompatActivity {
         create.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this, Create.class);
+                startActivity(intent);
             }
         });
     }
@@ -40,13 +45,29 @@ public class MainActivity extends AppCompatActivity {
         toDoAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadToDo();
+    }
+
     private void loadToDo() {
-        ToDoFormat item = new ToDoFormat();
-        item.title = "title";
-        item.description = "des";
-        item.date = "03:13";
-        item.priority = 1;
-        toDoList.add(item);
+        toDoList.clear();
+        MyDatabase myDatabase = new MyDatabase(this, "main", null, 1);
+        SQLiteDatabase sqLiteDatabase = myDatabase.getWritableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery("select * from main", null);
+        cursor.moveToFirst();
+        while(cursor.moveToNext()){
+            ToDoFormat item = new ToDoFormat();
+            SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm");
+            item.title = cursor.getString(cursor.getColumnIndex("title"));
+            item.description = cursor.getString(cursor.getColumnIndex("description"));
+            item.date = cursor.getString(cursor.getColumnIndex("date"));
+            item.priority = cursor.getString(cursor.getColumnIndex("priority"));
+            toDoList.add(item);
+        }
+        sqLiteDatabase.close();
+        toDoAdapter.notifyDataSetChanged();
     }
 
     private void initView() {

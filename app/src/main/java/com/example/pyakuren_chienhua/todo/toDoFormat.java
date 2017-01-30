@@ -8,5 +8,5 @@ public class ToDoFormat {
     public String title;
     public String description;
     public String date;
-    public int priority;
+    public String priority;
 }
