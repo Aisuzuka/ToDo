@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -22,6 +23,7 @@ public class Create extends AppCompatActivity {
     Button dateButton, create, cancle;
     RadioGroup rg;
     TextView dateView;
+    RadioButton important, pressing, normal;
     int mYear, mMonth, mDay, mHour, mMin;
     String priority;
     StringBuffer stringBuffer = new StringBuffer("");
@@ -33,13 +35,49 @@ public class Create extends AppCompatActivity {
         setContentView(R.layout.activity_create);
         initView();
         initOnClickListener();
+        if (isEditMode()) {
+            fillData();
+        }
+    }
+
+    private void fillData() {
+        Bundle bundle = this.getIntent().getExtras();
+        toDoFormat.id = bundle.getInt("id");
+        toDoFormat.title = bundle.getString("title");
+        toDoFormat.description = bundle.getString("description");
+        toDoFormat.date = bundle.getString("date");
+        stringBuffer.append(toDoFormat.date);
+        toDoFormat.priority = bundle.getString("priority");
+        priority = toDoFormat.priority;
+
+        title.setText(toDoFormat.title);
+        description.setText(toDoFormat.description);
+        dateView.setText(toDoFormat.date);
+        switch (toDoFormat.priority) {
+            case "1":
+                important.setChecked(true);
+                break;
+            case "2":
+                pressing.setChecked(true);
+                break;
+            case "3":
+                normal.setChecked(true);
+                break;
+        }
+    }
+
+    private boolean isEditMode() {
+        if (this.getIntent().getExtras().getString("Type").equals("Edit"))
+            return true;
+        else
+            return false;
     }
 
     private void initOnClickListener() {
         rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch(checkedId){
+                switch (checkedId) {
                     case R.id.radioButton:
                         priority = "1";
                         break;
@@ -66,15 +104,23 @@ public class Create extends AppCompatActivity {
                 toDoFormat.date = stringBuffer.toString();
                 toDoFormat.description = description.getText().toString();
                 toDoFormat.priority = priority;
-                if(checkNull()) {
+                if (checkNull()) {
                     MyDatabase myDatabase = new MyDatabase(Create.this, "main", null, 1);
                     SQLiteDatabase sqLiteDatabase = myDatabase.getWritableDatabase();
                     ContentValues contentValues = new ContentValues();
-                    contentValues.put("title", toDoFormat.title);
-                    contentValues.put("date", toDoFormat.date);
-                    contentValues.put("description", toDoFormat.description);
-                    contentValues.put("priority", toDoFormat.priority);
-                    sqLiteDatabase.insert("main", null, contentValues);
+                    if (isEditMode()) {
+                        contentValues.put("title", toDoFormat.title);
+                        contentValues.put("date", toDoFormat.date);
+                        contentValues.put("description", toDoFormat.description);
+                        contentValues.put("priority", toDoFormat.priority);
+                        sqLiteDatabase.update("main", contentValues, "_id = ?", new String[]{String.valueOf(toDoFormat.id)});
+                    } else {
+                        contentValues.put("title", toDoFormat.title);
+                        contentValues.put("date", toDoFormat.date);
+                        contentValues.put("description", toDoFormat.description);
+                        contentValues.put("priority", toDoFormat.priority);
+                        sqLiteDatabase.insert("main", null, contentValues);
+                    }
                     sqLiteDatabase.close();
                     Create.this.finish();
                 } else {
@@ -97,7 +143,7 @@ public class Create extends AppCompatActivity {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                         month++;
-                        stringBuffer.append(String.valueOf(year*10000 + month*100 + dayOfMonth));
+                        stringBuffer.append(String.valueOf(year * 10000 + month * 100 + dayOfMonth));
                         new TimePickerDialog(Create.this, new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -112,19 +158,19 @@ public class Create extends AppCompatActivity {
     }
 
     private boolean checkNull() {
-        if(checkStringIllegule(toDoFormat.description))
+        if (checkStringIllegule(toDoFormat.description))
             return false;
-        else if(checkStringIllegule(toDoFormat.priority))
+        else if (checkStringIllegule(toDoFormat.priority))
             return false;
-        else if(checkStringIllegule(toDoFormat.date))
+        else if (checkStringIllegule(toDoFormat.date))
             return false;
-        else if(checkStringIllegule(toDoFormat.title))
+        else if (checkStringIllegule(toDoFormat.title))
             return false;
         return true;
     }
 
     private boolean checkStringIllegule(String string) {
-        if(string == "" || string == null)
+        if (string == "" || string == null)
             return true;
         else
             return false;
@@ -138,5 +184,8 @@ public class Create extends AppCompatActivity {
         create = (Button) findViewById(R.id.button3);
         cancle = (Button) findViewById(R.id.button4);
         rg = (RadioGroup) findViewById(R.id.radioGroup);
+        important = (RadioButton) findViewById(R.id.radioButton);
+        pressing = (RadioButton) findViewById(R.id.radioButton2);
+        normal = (RadioButton) findViewById(R.id.radioButton3);
     }
 }

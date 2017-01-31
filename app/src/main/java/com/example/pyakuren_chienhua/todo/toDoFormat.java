@@ -5,6 +5,7 @@ package com.example.pyakuren_chienhua.todo;
  */
 
 public class ToDoFormat {
+    public int id;
     public String title;
     public String description;
     public String date;
